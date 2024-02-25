@@ -24,4 +24,8 @@ impl Color {
     pub fn blue() -> Color {
         Color::new(0.0, 0.0, 1.0)
     }
+
+    pub fn red() -> Color {
+        Color::new(1.0, 0.0, 0.0)
+    }
 }

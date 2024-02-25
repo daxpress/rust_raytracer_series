@@ -61,11 +61,11 @@ pub struct Viewport {
 
 impl Viewport {
     pub fn new(aspect_ratio: f64, viewport_height: f64, image_width: usize, focal_length: f64, center: Point) -> Viewport {
-        let mut image_height = (image_width as f64 / aspect_ratio as f64) as usize;
+        let mut image_height = (image_width as f64 / aspect_ratio) as usize;
         if image_height < 1 {
             image_height = 1;
         }
-        let viewport_width = viewport_height * (image_width / image_height) as f64;
+        let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
         let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
         let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
         let pixel_delta_u = viewport_u / image_width as f64;
