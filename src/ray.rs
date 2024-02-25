@@ -35,8 +35,10 @@ impl Ray {
     }
 
     pub fn get_color(&self) -> Color {
-        if self.sphere_hit(&Point::new(0.0, 0.0, -1.0), 0.5) {
-            return Color::red();
+        let hit = self.sphere_hit(&Point::new(0.0, 0.0, -1.0), 0.5);
+        if hit > 0.0 {
+            let normal = (self.at(hit) - Vec3::new(0.0, 0.0, -1.0)).normalized();
+            return 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
         }
         // first map a from -1..1 to 0..1
         let a = 0.5 * (self.direction.normalized().y() + 1.0);
@@ -44,12 +46,18 @@ impl Ray {
         (1.0 - a) * Color::white() + a * Color::new(0.5, 0.7, 1.0)
     }
 
-    pub fn sphere_hit(&self, center: &Point, radius: f64) -> bool {
+    pub fn sphere_hit(&self, center: &Point, radius: f64) -> f64 {
         let oc = self.origin - *center;
-        let a = Vec3::dot(&self.direction, &self.direction);
-        let b = 2.0 * Vec3::dot(&oc, &self.direction);
-        let c = Vec3::dot(&oc, &oc) - radius * radius;
-        let discriminant = b*b - 4.0 * a * c;
-        discriminant >= 0.0
+        // dot of a vector by itself is the squared length of that vector
+        let a = self.direction.len_squared();
+        let half_b = Vec3::dot(&oc, &self.direction);
+        let c = oc.len_squared() - radius * radius;
+        let discriminant = half_b * half_b - a * c;
+        if discriminant < 0.0 {
+            return -1.0;
+        }
+        else {
+            return (-half_b - discriminant.sqrt()) / a;
+        }
     }
 }

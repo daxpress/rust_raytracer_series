@@ -23,7 +23,7 @@ impl Raytracer {
 
     pub fn init_image(&mut self) {
         for j in 0..self.camera.height() {
-            println!("\rScanlines remaining: {} ", self.camera.height() - j);
+            //println!("\rScanlines remaining: {} ", self.camera.height() - j);
 
             for i in 0..self.camera.width() {
                 let pixel_center = self.camera.viewport().get_pixel_center(i as i32, j as i32);
