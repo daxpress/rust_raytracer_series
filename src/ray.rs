@@ -15,10 +15,10 @@ impl Ray {
         }
     }
 
-    pub fn new(origin: &Point, direction: &Vec3) -> Self {
+    pub fn new(origin: Point, direction: Vec3) -> Self {
         Ray {
-            origin: origin.clone(),
-            direction: direction.clone()
+            origin,
+            direction
         }
     }
 

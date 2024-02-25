@@ -4,18 +4,18 @@ use super::vec3::Vec3;
 use super::Point;
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64, record: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitResult>;
 }
 
-pub struct HitRecord {
+pub struct HitResult {
     location: Point,
     normal: Vec3,
     t: f64,
 }
 
-impl HitRecord {
+impl HitResult {
     pub fn new(location: Point, normal: Vec3, t: f64) -> Self {
-        HitRecord {
+        HitResult {
             location,
             normal,
             t,

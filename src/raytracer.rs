@@ -29,7 +29,7 @@ impl Raytracer {
                 let pixel_center = self.camera.viewport().get_pixel_center(i as i32, j as i32);
                 let ray_direction = pixel_center - self.camera.center();
 
-                let ray = Ray::new(&self.camera.center(), &ray_direction);
+                let ray = Ray::new(self.camera.center(), ray_direction);
 
                 let color = ray.get_color();
                 self.write_pixel(&color)
