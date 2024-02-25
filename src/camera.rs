@@ -1,7 +1,6 @@
 use super::vec3::Vec3;
 use super::Point;
 
-
 #[derive(Debug)]
 pub struct Camera {
     aspect_ratio: f64,
@@ -60,7 +59,13 @@ pub struct Viewport {
 }
 
 impl Viewport {
-    pub fn new(aspect_ratio: f64, viewport_height: f64, image_width: usize, focal_length: f64, center: Point) -> Viewport {
+    pub fn new(
+        aspect_ratio: f64,
+        viewport_height: f64,
+        image_width: usize,
+        focal_length: f64,
+        center: Point,
+    ) -> Viewport {
         let mut image_height = (image_width as f64 / aspect_ratio) as usize;
         if image_height < 1 {
             image_height = 1;
@@ -86,7 +91,7 @@ impl Viewport {
             viewport_v,
             pixel_delta_u,
             pixel_delta_v,
-            pixel_00
+            pixel_00,
         }
     }
 

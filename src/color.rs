@@ -1,7 +1,6 @@
 pub use super::vec3::Vec3 as Color;
 
 impl Color {
-    
     pub fn r(&self) -> &f64 {
         self.x()
     }
