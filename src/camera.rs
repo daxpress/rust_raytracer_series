@@ -11,7 +11,7 @@ pub struct Camera {
     focal_length: f64,
     viewport: Viewport,
     samples: u32,
-    max_depth: u32
+    max_depth: u32,
 }
 
 impl Camera {
@@ -25,7 +25,7 @@ impl Camera {
             focal_length,
             viewport,
             samples,
-            max_depth
+            max_depth,
         }
     }
 
@@ -68,21 +68,27 @@ impl Camera {
     fn write_pixel(&self, color: &Color, samples: u32, image_data: &mut Vec<u8>) {
         let scale = 1.0 / samples as f64;
 
-        let r = *color.r() * scale;
-        let g = *color.g() * scale;
-        let b = *color.b() * scale;
-
         let intesity: Interval = Interval::new(0.0, 1.0);
 
-        image_data.push((255f64 * intesity.clamp(r)) as u8);
-        image_data.push((255f64 * intesity.clamp(g)) as u8);
-        image_data.push((255f64 * intesity.clamp(b)) as u8);
+        let color = Color::linear_to_gamma(&Color::new(
+            *color.r() * scale,
+            *color.g() * scale,
+            *color.b() * scale,
+        ));
+
+        let r = 255f64 * intesity.clamp(*color.r());
+        let g = 255f64 * intesity.clamp(*color.g());
+        let b = 255f64 * intesity.clamp(*color.b());
+
+        image_data.push(r as u8);
+        image_data.push(g as u8);
+        image_data.push(b as u8);
     }
 
     fn get_ray(&self, i: usize, j: usize) -> Ray {
-        let pixel_center = self.viewport.pixel_00 + 
-        (i as f64 * self.viewport.pixel_delta_u) +
-        (j as f64 * self.viewport.pixel_delta_v);
+        let pixel_center = self.viewport.pixel_00
+            + (i as f64 * self.viewport.pixel_delta_u)
+            + (j as f64 * self.viewport.pixel_delta_v);
         let sample = pixel_center - self.pixel_sample_square();
 
         let ray_direction = sample - self.center;
@@ -97,7 +103,6 @@ impl Camera {
 
         (px * self.viewport.pixel_delta_u) + (py * self.viewport.pixel_delta_v)
     }
-
 }
 
 #[derive(Debug)]

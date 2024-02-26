@@ -49,4 +49,14 @@ impl Color {
     pub fn green() -> Color {
         Color::new(0.0, 1.0, 0.0)
     }
+
+    #[inline(always)]
+    pub fn linear_to_gamma(color: &Color) -> Color {
+        Color::new(color.x().sqrt(), color.y().sqrt(), color.z().sqrt())
+    }
+
+    #[inline(always)]
+    pub fn gamma_to_linear(color: &Color) -> Color {
+        Color::new(color.x().powi(2), color.y().powi(2), color.z().powi(2))
+    }
 }
