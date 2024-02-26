@@ -1,3 +1,6 @@
+use std::rc::Rc;
+
+use super::material::Material;
 use super::ray::Ray;
 use super::interval::Interval;
 use super::vec3::Vec3;
@@ -10,12 +13,13 @@ pub trait Hittable {
 pub struct HitResult {
     location: Point,
     normal: Vec3,
+    material: Rc<dyn Material>,
     t: f64,
     front_face: bool,
 }
 
 impl HitResult {
-    pub fn new(ray: &Ray, location: Point, normal: Vec3, t: f64) -> Self {
+    pub fn new(ray: &Ray, location: Point, normal: Vec3, material: Rc<dyn Material>, t: f64) -> Self {
         let front_face = Vec3::dot(&ray.direction(), &normal) < 0.0;
         let mut normal = normal;
         if !front_face {
@@ -24,6 +28,7 @@ impl HitResult {
         HitResult {
             location,
             normal,
+            material,
             t,
             front_face,
         }
@@ -47,5 +52,10 @@ impl HitResult {
     #[inline(always)]
     pub fn front_face(&self) -> bool {
         self.front_face
+    }
+
+    #[inline(always)]
+    pub fn material(&self) -> Rc<dyn Material> {
+        Rc::clone(&self.material)
     }
 }

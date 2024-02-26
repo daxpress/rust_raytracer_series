@@ -3,6 +3,8 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
+use crate::interval;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     fields: [f64; 3],
@@ -121,6 +123,17 @@ impl Vec3 {
         else {
             -on_unit_sphere
         }
+    }
+
+    #[inline(always)]
+    pub fn near_zero(&self) -> bool {
+        // small number
+        let s = 1e-8;
+        *self.x() < s && *self.y() < s && *self.z() < s 
+    }
+
+    pub fn reflect(v: &Vec3, normal: &Vec3) -> Vec3 {
+        *v - 2.0 * Vec3::dot(v, normal) * *normal
     }
 
 }

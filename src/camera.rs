@@ -50,7 +50,7 @@ impl Camera {
 
     pub fn render(&self, world: &dyn Hittable, image_data: &mut Vec<u8>) {
         for j in 0..self.height() {
-            //println!("\rScanlines remaining: {} ", self.camera.height() - j);
+            println!("\rScanlines remaining: {} ", self.height() - j);
 
             for i in 0..self.width() {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);

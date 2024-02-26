@@ -46,9 +46,15 @@ impl Ray {
         match hit {
             None => (),
             Some(result) => {
-                // now using lambertian distribution to more accurately represent reflections
-                let direction = *result.normal() + Vec3::rand_unit();
-                return Ray::new(*result.location(), direction).color(world, depth-1) * 0.5;
+                // we need to check the scatter result now
+                let scatter_result = result.material().scatter(&self, &result);
+                match scatter_result {
+                    None => return Color::black(),
+                    Some(scatter) => {
+                        return scatter.attenuation()
+                            * scatter.scattered_ray().color(world, depth - 1)
+                    }
+                }
             }
         }
         // background

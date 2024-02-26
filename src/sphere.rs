@@ -1,17 +1,25 @@
+use std::rc::Rc;
+
 use super::hittable::{HitResult, Hittable};
+use super::interval::Interval;
+use super::material::Material;
 use super::ray::Ray;
 use super::vec3::Vec3;
 use super::Point;
-use super::interval::Interval;
 
 pub struct Sphere {
     center: Point,
     radius: f64,
+    material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point, radius: f64) -> Self {
-        Sphere { center, radius }
+    pub fn new(center: Point, radius: f64, material: Rc<dyn Material>) -> Self {
+        Sphere {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
@@ -32,13 +40,19 @@ impl Hittable for Sphere {
         if !interval.surrounds(root) {
             root = (-half_b + sqrtd) / a;
             if !interval.surrounds(root) {
-                return None
+                return None;
             }
         }
 
         let t = root;
         let location = ray.at(t);
         let normal = (location - self.center) / self.radius;
-        return Some(HitResult::new(ray, location, normal, t));
+        return Some(HitResult::new(
+            ray,
+            location,
+            normal,
+            Rc::clone(&self.material),
+            t,
+        ));
     }
 }

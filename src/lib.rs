@@ -1,12 +1,13 @@
 mod camera;
-mod color;
+pub mod color;
 pub mod hittable;
 pub mod hittable_list;
+mod interval;
+pub mod material;
 mod ray;
 pub mod raytracer;
 pub mod sphere;
-mod vec3;
 mod utilities;
-mod interval;
+mod vec3;
 
 pub use vec3::Vec3 as Point;
