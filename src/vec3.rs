@@ -1,9 +1,11 @@
-use std::ops::{Add, Div, Mul, Sub, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Index, IndexMut};
 use std::fmt::Display;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
-    fields: [f64; 3]
+    fields: [f64; 3],
 }
 
 impl Vec3 {
@@ -15,10 +17,8 @@ impl Vec3 {
         Vec3::new(1.0, 1.0, 1.0)
     }
 
-    pub fn new(x: f64, y:f64, z:f64) -> Self {
-        Vec3 {
-            fields: [x, y, z]
-        }
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Vec3 { fields: [x, y, z] }
     }
 
     #[inline(always)]
@@ -60,9 +60,7 @@ impl Vec3 {
     }
 
     pub fn dot(lhs: &Self, rhs: &Self) -> f64 {
-        lhs.x() * rhs.x() + 
-        lhs.y() * rhs.y() + 
-        lhs.z() * rhs.z()
+        lhs.x() * rhs.x() + lhs.y() * rhs.y() + lhs.z() * rhs.z()
     }
 
     pub fn cross(lhs: &Self, rhs: &Self) -> Self {
@@ -70,8 +68,8 @@ impl Vec3 {
             fields: [
                 lhs.y() * rhs.z() - lhs.z() * rhs.y(),
                 lhs.z() * rhs.x() - lhs.x() * rhs.z(),
-                lhs.x() * rhs.y() - lhs.y() * rhs.x()
-            ]
+                lhs.x() * rhs.y() - lhs.y() * rhs.x(),
+            ],
         }
     }
 
@@ -84,6 +82,47 @@ impl Vec3 {
         temp
     }
 
+    #[inline(always)]
+    pub fn rand() -> Vec3 {
+        use super::utilities::rand;
+        Vec3::new(rand(), rand(), rand())
+    }
+
+    #[inline(always)]
+    pub fn rand_range(min: f64, max: f64) -> Vec3 {
+        use super::utilities::rand_range;
+        Vec3::new(
+            rand_range(min, max),
+            rand_range(min, max),
+            rand_range(min, max),
+        )
+    }
+    #[inline(always)]
+    pub fn rand_unit_in_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::rand_range(-1.0, 1.0);
+            if p.len_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+    
+    #[inline(always)]
+    pub fn rand_unit() -> Vec3 {
+        Vec3::normalized(&Vec3::rand_unit_in_sphere())
+    }
+
+    #[inline(always)]
+    pub fn rand_on_hemisphere(normal: &Vec3) -> Vec3 {
+        let on_unit_sphere = Vec3::rand_unit();
+        if Vec3::dot(&on_unit_sphere, normal) > 0.0 {
+            on_unit_sphere
+        }
+        else {
+            -on_unit_sphere
+        }
+    }
+
 }
 
 impl Neg for Vec3 {
@@ -91,18 +130,18 @@ impl Neg for Vec3 {
 
     fn neg(self) -> Self::Output {
         Vec3 {
-            fields: [
-                -self.fields[0],
-                -self.fields[1],
-                -self.fields[2]
-            ]
+            fields: [-self.fields[0], -self.fields[1], -self.fields[2]],
         }
     }
 }
 
 impl Display for Vec3 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {}, {})", self.fields[0], self.fields[1], self.fields[2])
+        write!(
+            f,
+            "({}, {}, {})",
+            self.fields[0], self.fields[1], self.fields[2]
+        )
     }
 }
 
@@ -115,7 +154,7 @@ impl Add for Vec3 {
                 self.fields[0] + rhs.fields[0],
                 self.fields[1] + rhs.fields[1],
                 self.fields[2] + rhs.fields[2],
-            ]
+            ],
         }
     }
 }
@@ -137,7 +176,7 @@ impl Sub for Vec3 {
                 self.fields[0] - rhs.fields[0],
                 self.fields[1] - rhs.fields[1],
                 self.fields[2] - rhs.fields[2],
-            ]
+            ],
         }
     }
 }
@@ -159,34 +198,30 @@ impl Mul for Vec3 {
                 self.fields[0] * rhs.fields[0],
                 self.fields[1] * rhs.fields[1],
                 self.fields[2] * rhs.fields[2],
-            ]
+            ],
         }
     }
 }
 
 impl Mul<f64> for Vec3 {
     type Output = Self;
-    
+
     fn mul(self, rhs: f64) -> Self::Output {
         Vec3 {
             fields: [
                 self.fields[0] * rhs,
                 self.fields[1] * rhs,
                 self.fields[2] * rhs,
-            ]
+            ],
         }
     }
 }
-    
+
 impl Mul<Vec3> for f64 {
     type Output = Vec3;
-    
+
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3::new(
-            rhs.x() * self,
-            rhs.y() * self,
-            rhs.z() * self
-        )
+        Vec3::new(rhs.x() * self, rhs.y() * self, rhs.z() * self)
     }
 }
 
@@ -200,17 +235,17 @@ impl MulAssign<f64> for Vec3 {
 
 impl Div<f64> for Vec3 {
     type Output = Self;
-    
+
     fn div(self, rhs: f64) -> Self::Output {
-        (1.0f64/rhs) * self
+        (1.0f64 / rhs) * self
     }
 }
 
 impl DivAssign<f64> for Vec3 {
     fn div_assign(&mut self, rhs: f64) {
-        self.fields[0] *= 1.0f64/rhs;
-        self.fields[1] *= 1.0f64/rhs;
-        self.fields[2] *= 1.0f64/rhs;
+        self.fields[0] *= 1.0f64 / rhs;
+        self.fields[1] *= 1.0f64 / rhs;
+        self.fields[2] *= 1.0f64 / rhs;
     }
 }
 

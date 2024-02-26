@@ -37,12 +37,17 @@ impl Ray {
         self.origin + t * self.direction
     }
 
-    pub fn color(&self, world: &dyn Hittable) -> Color {
-        let hit = world.hit(&self, Interval::new(0.0, INFINITY));
+    pub fn color(&self, world: &dyn Hittable, depth: u32) -> Color {
+        if depth <= 0 {
+            return Color::black();
+        }
+        // interval starts from 0.001 to hack away the shadow acne problem
+        let hit = world.hit(&self, Interval::new(0.001, INFINITY));
         match hit {
             None => (),
             Some(result) => {
-                return (*result.normal() + Color::white()) * 0.5;
+                let direction = Vec3::rand_on_hemisphere(result.normal());
+                return Ray::new(*result.location(), direction).color(world, depth-1) * 0.5;
             }
         }
         // background

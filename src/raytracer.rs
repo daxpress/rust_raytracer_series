@@ -1,21 +1,22 @@
+use super::camera::Camera;
+use super::hittable::Hittable;
 use stb::image_write::stbi_write_png;
 use std::{ffi::CString, fmt::Display};
-use super::hittable::Hittable;
-use super::camera::Camera;
 
 #[derive(Debug)]
 pub struct Raytracer {
     data: Vec<u8>,
     camera: Camera,
-    components: i32
+    components: i32,
 }
 
 impl Raytracer {
     pub fn new() -> Self {
         Raytracer {
             data: Vec::new(),
-            camera: Camera::default(),
-            components: 3
+            camera: Camera::new(16.0 / 9.0, 400, 100, 50),
+            //camera: Camera::default(),
+            components: 3,
         }
     }
 
@@ -41,7 +42,9 @@ impl Display for Raytracer {
         write!(
             f,
             "width: {}, height: {}, components: {}",
-            self.camera.width(), self.camera.height(), self.components
+            self.camera.width(),
+            self.camera.height(),
+            self.components
         )
     }
 }

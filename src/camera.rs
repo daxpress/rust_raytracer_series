@@ -11,10 +11,11 @@ pub struct Camera {
     focal_length: f64,
     viewport: Viewport,
     samples: u32,
+    max_depth: u32
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: usize, samples: u32) -> Self {
+    pub fn new(aspect_ratio: f64, image_width: usize, samples: u32, max_depth: u32) -> Self {
         let focal_length = 1.0;
         let center = Point::zero();
         let viewport = Viewport::new(aspect_ratio, 2.0, image_width, 1.0, center);
@@ -24,11 +25,12 @@ impl Camera {
             focal_length,
             viewport,
             samples,
+            max_depth
         }
     }
 
     pub fn default() -> Camera {
-        Camera::new(16.0 / 9.0, 400, 10)
+        Camera::new(16.0 / 9.0, 400, 10, 10)
     }
 
     #[inline(always)]
@@ -46,23 +48,15 @@ impl Camera {
         self.viewport.image_width
     }
 
-    pub fn set_aspect_ratio(&mut self, aspect_ratio: f64) {
-        self.viewport.aspect_ratio = aspect_ratio
-    }
-
-    pub fn set_image_width(&mut self, width: usize) {
-        self.viewport.image_width = width
-    }
-
     pub fn render(&self, world: &dyn Hittable, image_data: &mut Vec<u8>) {
         for j in 0..self.height() {
             //println!("\rScanlines remaining: {} ", self.camera.height() - j);
 
             for i in 0..self.width() {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                for sample in 0..self.samples {
+                for _ in 0..self.samples {
                     let ray = self.get_ray(i, j);
-                    pixel_color += ray.color(world);
+                    pixel_color += ray.color(world, self.max_depth);
                 }
                 self.write_pixel(&pixel_color, self.samples, image_data);
             }
@@ -110,14 +104,13 @@ impl Camera {
 struct Viewport {
     pub image_width: usize,
     pub image_height: usize,
-    pub viewport_width: f64,
-    pub viewport_height: f64,
+    viewport_width: f64,
+    viewport_height: f64,
     viewport_u: Vec3,
     viewport_v: Vec3,
     pub pixel_delta_u: Vec3,
     pub pixel_delta_v: Vec3,
     pub pixel_00: Vec3,
-    pub aspect_ratio: f64,
 }
 
 impl Viewport {
@@ -154,7 +147,6 @@ impl Viewport {
             pixel_delta_u,
             pixel_delta_v,
             pixel_00,
-            aspect_ratio,
         }
     }
 }
