@@ -2,6 +2,7 @@ use super::hittable::{HitResult, Hittable};
 use super::ray::Ray;
 use super::vec3::Vec3;
 use super::Point;
+use super::interval::Interval;
 
 pub struct Sphere {
     center: Point,
@@ -15,7 +16,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitResult> {
+    fn hit(&self, ray: &Ray, interval: Interval) -> Option<HitResult> {
         let oc = ray.origin() - self.center;
         let a = ray.direction().len_squared();
         let half_b = Vec3::dot(&oc, &ray.direction());
@@ -26,9 +27,13 @@ impl Hittable for Sphere {
             return None;
         }
         let sqrtd = discriminant.sqrt();
-        let root = (-half_b - sqrtd) / a;
-        if root <= ray_tmin || root >= ray_tmax {
-            return None;
+        let mut root = (-half_b - sqrtd) / a;
+
+        if !interval.surrounds(root) {
+            root = (-half_b + sqrtd) / a;
+            if !interval.surrounds(root) {
+                return None
+            }
         }
 
         let t = root;

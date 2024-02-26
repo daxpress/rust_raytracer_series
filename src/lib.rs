@@ -7,5 +7,6 @@ pub mod raytracer;
 pub mod sphere;
 pub mod vec3;
 pub mod utilities;
+pub mod interval;
 
 pub use vec3::Vec3 as Point;

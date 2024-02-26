@@ -1,10 +1,10 @@
 use super::ray::Ray;
-
+use super::interval::Interval;
 use super::vec3::Vec3;
 use super::Point;
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitResult>;
+    fn hit(&self, ray: &Ray, interval: Interval) -> Option<HitResult>;
 }
 
 pub struct HitResult {

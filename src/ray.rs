@@ -1,5 +1,6 @@
 use std::f64::INFINITY;
 
+use super::interval::Interval;
 use super::Point;
 use super::vec3::Vec3;
 use super::color::Color;
@@ -38,7 +39,7 @@ impl Ray {
     }
 
     pub fn color(&self, world: &dyn Hittable) -> Color {
-        let hit = world.hit(&self, 0.0, INFINITY);
+        let hit = world.hit(&self, Interval::new(0.0, INFINITY));
         match hit {
             None => (),
             Some(result) => {
