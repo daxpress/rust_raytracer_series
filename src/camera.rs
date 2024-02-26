@@ -5,7 +5,6 @@ use super::ray::Ray;
 use super::color::Color;
 #[derive(Debug)]
 pub struct Camera {
-    aspect_ratio: f64,
     center: Point,
     focal_length: f64,
     viewport: Viewport,
@@ -19,7 +18,6 @@ impl Camera {
         let viewport = Viewport::new(aspect_ratio, 2.0, image_width, 1.0, center);
 
         Camera {
-            aspect_ratio,
             center,
             focal_length,
             viewport,
@@ -28,10 +26,6 @@ impl Camera {
 
     pub fn default() -> Camera {
         Camera::new(16.0 / 9.0, 400)
-    }
-    #[inline(always)]
-    pub fn viewport(&self) -> &Viewport {
-        &self.viewport
     }
 
     #[inline(always)]
@@ -50,7 +44,7 @@ impl Camera {
     }
 
     pub fn set_aspect_ratio(&mut self, aspect_ratio: f64) {
-        self.aspect_ratio = aspect_ratio
+        self.viewport.aspect_ratio = aspect_ratio
     }
 
     pub fn set_image_width(&mut self, width: usize) {
@@ -62,7 +56,7 @@ impl Camera {
             //println!("\rScanlines remaining: {} ", self.camera.height() - j);
 
             for i in 0..self.width() {
-                let pixel_center = self.viewport().get_pixel_center(i as i32, j as i32);
+                let pixel_center = self.viewport.get_pixel_center(i as i32, j as i32);
                 let ray_direction = pixel_center - self.center();
 
                 let ray = Ray::new(self.center(), ray_direction);
@@ -85,16 +79,17 @@ impl Camera {
 }
 
 #[derive(Debug)]
-pub struct Viewport {
-    image_width: usize,
-    image_height: usize,
-    viewport_width: f64,
-    viewport_height: f64,
+struct Viewport {
+    pub image_width: usize,
+    pub image_height: usize,
+    pub viewport_width: f64,
+    pub viewport_height: f64,
     viewport_u: Vec3,
     viewport_v: Vec3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
     pixel_00: Vec3,
+    pub aspect_ratio: f64,
 }
 
 impl Viewport {
@@ -131,10 +126,11 @@ impl Viewport {
             pixel_delta_u,
             pixel_delta_v,
             pixel_00,
+            aspect_ratio
         }
     }
 
     pub fn get_pixel_center(&self, x: i32, y: i32) -> Vec3 {
         self.pixel_00 + (x as f64 * self.pixel_delta_u) + (y as f64 * self.pixel_delta_v)
-    }
+    }   
 }

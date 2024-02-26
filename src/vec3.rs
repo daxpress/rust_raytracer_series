@@ -36,6 +36,21 @@ impl Vec3 {
         &self.fields[2]
     }
 
+    #[inline(always)]
+    pub fn x_mut(&mut self) -> &mut f64 {
+        &mut self.fields[0]
+    }
+
+    #[inline(always)]
+    pub fn y_mut(&mut self) -> &mut f64 {
+        &mut self.fields[1]
+    }
+
+    #[inline(always)]
+    pub fn z_mut(&mut self) -> &mut f64 {
+        &mut self.fields[2]
+    }
+
     pub fn len(&self) -> f64 {
         (self.x() * self.x() + self.y() * self.y() + self.z() * self.z()).sqrt()
     }

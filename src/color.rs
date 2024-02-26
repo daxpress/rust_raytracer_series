@@ -16,6 +16,21 @@ impl Color {
         self.z()
     }
 
+    #[inline(always)]
+    pub fn r_mut(&mut self) -> &mut f64 {
+        self.x_mut()
+    }
+
+    #[inline(always)]
+    pub fn g_mut(&mut self) -> &mut f64 {
+        self.y_mut()
+    }
+
+    #[inline(always)]
+    pub fn b_mut(&mut self) -> &mut f64 {
+        self.z_mut()
+    }
+
     pub fn black() -> Color {
         Color::zero()
     }
