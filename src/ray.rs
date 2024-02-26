@@ -46,7 +46,8 @@ impl Ray {
         match hit {
             None => (),
             Some(result) => {
-                let direction = Vec3::rand_on_hemisphere(result.normal());
+                // now using lambertian distribution to more accurately represent reflections
+                let direction = *result.normal() + Vec3::rand_unit();
                 return Ray::new(*result.location(), direction).color(world, depth-1) * 0.5;
             }
         }
