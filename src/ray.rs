@@ -1,29 +1,26 @@
 use std::f64::INFINITY;
 
-use super::interval::Interval;
-use super::Point;
-use super::vec3::Vec3;
 use super::color::Color;
 use super::hittable::Hittable;
+use super::interval::Interval;
+use super::vec3::Vec3;
+use super::Point;
 
 pub struct Ray {
     origin: Point,
-    direction: Vec3
+    direction: Vec3,
 }
 
 impl Ray {
     pub fn empty() -> Self {
         Ray {
             origin: Point::zero(),
-            direction: Vec3::zero()
+            direction: Vec3::zero(),
         }
     }
 
     pub fn new(origin: Point, direction: Vec3) -> Self {
-        Ray {
-            origin,
-            direction
-        }
+        Ray { origin, direction }
     }
 
     #[inline(always)]

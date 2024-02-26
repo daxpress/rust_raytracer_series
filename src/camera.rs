@@ -1,31 +1,34 @@
-use super::vec3::Vec3;
-use super::Point;
+use crate::interval::Interval;
+
+use super::color::Color;
 use super::hittable::Hittable;
 use super::ray::Ray;
-use super::color::Color;
+use super::vec3::Vec3;
+use super::Point;
 #[derive(Debug)]
 pub struct Camera {
     center: Point,
     focal_length: f64,
     viewport: Viewport,
+    samples: u32,
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: usize) -> Self {
+    pub fn new(aspect_ratio: f64, image_width: usize, samples: u32) -> Self {
         let focal_length = 1.0;
         let center = Point::zero();
-
         let viewport = Viewport::new(aspect_ratio, 2.0, image_width, 1.0, center);
 
         Camera {
             center,
             focal_length,
             viewport,
+            samples,
         }
     }
 
     pub fn default() -> Camera {
-        Camera::new(16.0 / 9.0, 400)
+        Camera::new(16.0 / 9.0, 400, 10)
     }
 
     #[inline(always)]
@@ -56,26 +59,51 @@ impl Camera {
             //println!("\rScanlines remaining: {} ", self.camera.height() - j);
 
             for i in 0..self.width() {
-                let pixel_center = self.viewport.get_pixel_center(i as i32, j as i32);
-                let ray_direction = pixel_center - self.center();
-
-                let ray = Ray::new(self.center(), ray_direction);
-
-                let color = ray.color(world);
-                self.write_pixel(&color, image_data);
+                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                for sample in 0..self.samples {
+                    let ray = self.get_ray(i, j);
+                    pixel_color += ray.color(world);
+                }
+                self.write_pixel(&pixel_color, self.samples, image_data);
             }
         }
 
         println!("\rDone.");
     }
 
-    fn write_pixel(&self, color: &Color, image_data: &mut Vec<u8>) {
-        image_data.push((255f64 * *color.r()) as u8);
-        image_data.push((255f64 * *color.g()) as u8);
-        image_data.push((255f64 * *color.b()) as u8);
+    fn write_pixel(&self, color: &Color, samples: u32, image_data: &mut Vec<u8>) {
+        let scale = 1.0 / samples as f64;
+
+        let r = *color.r() * scale;
+        let g = *color.g() * scale;
+        let b = *color.b() * scale;
+
+        let intesity: Interval = Interval::new(0.0, 1.0);
+
+        image_data.push((255f64 * intesity.clamp(r)) as u8);
+        image_data.push((255f64 * intesity.clamp(g)) as u8);
+        image_data.push((255f64 * intesity.clamp(b)) as u8);
     }
 
-    
+    fn get_ray(&self, i: usize, j: usize) -> Ray {
+        let pixel_center = self.viewport.pixel_00 + 
+        (i as f64 * self.viewport.pixel_delta_u) +
+        (j as f64 * self.viewport.pixel_delta_v);
+        let sample = pixel_center - self.pixel_sample_square();
+
+        let ray_direction = sample - self.center;
+
+        Ray::new(self.center, ray_direction)
+    }
+
+    fn pixel_sample_square(&self) -> Vec3 {
+        use super::utilities;
+        let px = -0.5 + utilities::rand();
+        let py = -0.5 + utilities::rand();
+
+        (px * self.viewport.pixel_delta_u) + (py * self.viewport.pixel_delta_v)
+    }
+
 }
 
 #[derive(Debug)]
@@ -86,9 +114,9 @@ struct Viewport {
     pub viewport_height: f64,
     viewport_u: Vec3,
     viewport_v: Vec3,
-    pixel_delta_u: Vec3,
-    pixel_delta_v: Vec3,
-    pixel_00: Vec3,
+    pub pixel_delta_u: Vec3,
+    pub pixel_delta_v: Vec3,
+    pub pixel_00: Vec3,
     pub aspect_ratio: f64,
 }
 
@@ -126,11 +154,7 @@ impl Viewport {
             pixel_delta_u,
             pixel_delta_v,
             pixel_00,
-            aspect_ratio
+            aspect_ratio,
         }
     }
-
-    pub fn get_pixel_center(&self, x: i32, y: i32) -> Vec3 {
-        self.pixel_00 + (x as f64 * self.pixel_delta_u) + (y as f64 * self.pixel_delta_v)
-    }   
 }
