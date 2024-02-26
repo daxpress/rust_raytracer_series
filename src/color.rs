@@ -1,14 +1,17 @@
 pub use super::vec3::Vec3 as Color;
 
 impl Color {
+    #[inline(always)]
     pub fn r(&self) -> &f64 {
         self.x()
     }
 
+    #[inline(always)]
     pub fn g(&self) -> &f64 {
         self.y()
     }
 
+    #[inline(always)]
     pub fn b(&self) -> &f64 {
         self.z()
     }

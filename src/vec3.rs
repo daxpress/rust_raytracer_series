@@ -21,14 +21,17 @@ impl Vec3 {
         }
     }
 
+    #[inline(always)]
     pub fn x(&self) -> &f64 {
         &self.fields[0]
     }
 
+    #[inline(always)]
     pub fn y(&self) -> &f64 {
         &self.fields[1]
     }
 
+    #[inline(always)]
     pub fn z(&self) -> &f64 {
         &self.fields[2]
     }

@@ -26,10 +26,12 @@ impl Ray {
         }
     }
 
+    #[inline(always)]
     pub fn origin(&self) -> Point {
         self.origin
     }
 
+    #[inline(always)]
     pub fn direction(&self) -> Vec3 {
         self.direction
     }

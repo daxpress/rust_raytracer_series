@@ -1,11 +1,7 @@
 use stb::image_write::stbi_write_png;
 use std::{ffi::CString, fmt::Display};
-
-use crate::hittable::Hittable;
-
+use super::hittable::Hittable;
 use super::camera::Camera;
-use super::color::Color;
-use super::ray::Ray;
 
 #[derive(Debug)]
 pub struct Raytracer {
@@ -24,21 +20,7 @@ impl Raytracer {
     }
 
     pub fn render_image(&mut self, world: &dyn Hittable) {
-        for j in 0..self.camera.height() {
-            //println!("\rScanlines remaining: {} ", self.camera.height() - j);
-
-            for i in 0..self.camera.width() {
-                let pixel_center = self.camera.viewport().get_pixel_center(i as i32, j as i32);
-                let ray_direction = pixel_center - self.camera.center();
-
-                let ray = Ray::new(self.camera.center(), ray_direction);
-
-                let color = ray.color(world);
-                self.write_pixel(&color)
-            }
-        }
-
-        println!("\rDone.");
+        self.camera.render(world, &mut self.data)
     }
 
     pub fn save_image(&self, filename: &str) {
@@ -51,12 +33,6 @@ impl Raytracer {
             &self.data,
             3 * self.camera.width() as i32,
         );
-    }
-
-    fn write_pixel(&mut self, color: &Color) {
-        self.data.push((255f64 * *color.r()) as u8);
-        self.data.push((255f64 * *color.g()) as u8);
-        self.data.push((255f64 * *color.b()) as u8);
     }
 }
 

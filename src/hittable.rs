@@ -28,18 +28,23 @@ impl HitResult {
             front_face,
         }
     }
+
+    #[inline(always)]
     pub fn location(&self) -> &Point {
         &self.location
     }
 
+    #[inline(always)]
     pub fn normal(&self) -> &Vec3 {
         &self.normal
     }
 
+    #[inline(always)]
     pub fn t(&self) -> f64 {
         self.t
     }
 
+    #[inline(always)]
     pub fn front_face(&self) -> bool {
         self.front_face
     }
