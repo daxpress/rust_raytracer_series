@@ -1,6 +1,8 @@
 use stb::image_write::stbi_write_png;
 use std::{ffi::CString, fmt::Display};
 
+use crate::hittable::Hittable;
+
 use super::camera::Camera;
 use super::color::Color;
 use super::ray::Ray;
@@ -21,7 +23,7 @@ impl Raytracer {
         }
     }
 
-    pub fn init_image(&mut self) {
+    pub fn render_image(&mut self, world: &dyn Hittable) {
         for j in 0..self.camera.height() {
             //println!("\rScanlines remaining: {} ", self.camera.height() - j);
 
@@ -31,7 +33,7 @@ impl Raytracer {
 
                 let ray = Ray::new(self.camera.center(), ray_direction);
 
-                let color = ray.get_color();
+                let color = ray.color(world);
                 self.write_pixel(&color)
             }
         }
@@ -39,7 +41,7 @@ impl Raytracer {
         println!("\rDone.");
     }
 
-    pub fn render_image(&self, filename: &str) {
+    pub fn save_image(&self, filename: &str) {
         let cstr = CString::new(filename).unwrap();
         stbi_write_png(
             &cstr,

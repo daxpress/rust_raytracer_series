@@ -3,17 +3,14 @@ use super::ray::Ray;
 use super::vec3::Vec3;
 use super::Point;
 
-struct Sphere {
+pub struct Sphere {
     center: Point,
     radius: f64,
 }
 
 impl Sphere {
     pub fn new(center: Point, radius: f64) -> Self {
-        Sphere {
-            center,
-            radius,
-        }
+        Sphere { center, radius }
     }
 }
 
@@ -29,7 +26,7 @@ impl Hittable for Sphere {
             return None;
         }
         let sqrtd = discriminant.sqrt();
-        let root = (-half_b + sqrtd) / a;
+        let root = (-half_b - sqrtd) / a;
         if root <= ray_tmin || root >= ray_tmax {
             return None;
         }
@@ -37,6 +34,6 @@ impl Hittable for Sphere {
         let t = root;
         let location = ray.at(t);
         let normal = (location - self.center) / self.radius;
-        return Some(HitResult::new(location, normal, t));
+        return Some(HitResult::new(ray, location, normal, t));
     }
 }
