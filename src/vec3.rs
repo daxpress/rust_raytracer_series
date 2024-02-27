@@ -3,7 +3,7 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use crate::interval;
+use crate::utilities::{rand, rand_range};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -116,7 +116,7 @@ impl Vec3 {
             }
         }
     }
-    
+
     #[inline(always)]
     pub fn rand_unit() -> Vec3 {
         Vec3::normalized(&Vec3::rand_unit_in_sphere())
@@ -127,9 +127,18 @@ impl Vec3 {
         let on_unit_sphere = Vec3::rand_unit();
         if Vec3::dot(&on_unit_sphere, normal) > 0.0 {
             on_unit_sphere
-        }
-        else {
+        } else {
             -on_unit_sphere
+        }
+    }
+
+    #[inline(always)]
+    pub fn rand_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(rand_range(-1.0, 1.0), rand_range(-1.0, 1.0), 0.0);
+            if p.len_squared() < 1.0 {
+                return p;
+            }
         }
     }
 
@@ -137,7 +146,7 @@ impl Vec3 {
     pub fn near_zero(&self) -> bool {
         // small number
         let s = 1e-8;
-        *self.x() < s && *self.y() < s && *self.z() < s 
+        *self.x() < s && *self.y() < s && *self.z() < s
     }
 
     pub fn reflect(v: &Vec3, normal: &Vec3) -> Vec3 {
@@ -147,7 +156,7 @@ impl Vec3 {
     pub fn refract(uv: &Vec3, normal: &Vec3, refraction_index: f64) -> Vec3 {
         let cos_theta = f64::min(Vec3::dot(&(-*uv), normal), 1.0);
         let r_out_perp = refraction_index * (*uv + *normal * cos_theta);
-        let r_out_parallel = - (1.0 - r_out_perp.len_squared()).abs().sqrt() * *normal;
+        let r_out_parallel = -(1.0 - r_out_perp.len_squared()).abs().sqrt() * *normal;
         r_out_perp + r_out_parallel
     }
 }
