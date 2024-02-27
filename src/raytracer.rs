@@ -1,3 +1,5 @@
+use crate::Point;
+
 use super::camera::Camera;
 use super::hittable::Hittable;
 use stb::image_write::stbi_write_png;
@@ -14,7 +16,15 @@ impl Raytracer {
     pub fn new() -> Self {
         Raytracer {
             data: Vec::new(),
-            camera: Camera::new(16.0 / 9.0, 400, 100, 50),
+            camera: Camera::new(
+                16.0 / 9.0,
+                400,
+                100,
+                50,
+                20.0,
+                Point::new(-2.0, 2.0, 1.0),
+                Point::new(0.0, 0.0, -1.0),
+            ),
             //camera: Camera::default(),
             components: 3,
         }

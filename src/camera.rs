@@ -1,4 +1,5 @@
 use crate::interval::Interval;
+use crate::utilities::deg_to_rad;
 
 use super::color::Color;
 use super::hittable::Hittable;
@@ -12,13 +13,36 @@ pub struct Camera {
     viewport: Viewport,
     samples: u32,
     max_depth: u32,
+    v_fov: f64,
+    lookfrom: Point,
+    lookat: Point,
+    vup: Vec3,
+    u: Vec3,
+    v: Vec3,
+    w: Vec3,
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: usize, samples: u32, max_depth: u32) -> Self {
-        let focal_length = 1.0;
-        let center = Point::zero();
-        let viewport = Viewport::new(aspect_ratio, 2.0, image_width, 1.0, center);
+    pub fn new(
+        aspect_ratio: f64,
+        image_width: usize,
+        samples: u32,
+        max_depth: u32,
+        v_fov: f64,
+        lookfrom: Point,
+        lookat: Point,
+    ) -> Self {
+        let vup = Vec3::up();
+        let center = lookfrom;
+        let focal_length = (lookfrom - lookat).len();
+        let theta = deg_to_rad(v_fov);
+        let h = f64::tan(theta * 0.5);
+
+        let w = (lookfrom - lookat).normalized();
+        let u = Vec3::cross(&vup, &w).normalized();
+        let v = Vec3::cross(&w, &u);
+
+        let viewport = Viewport::new(aspect_ratio, h, image_width, focal_length, center, u, v, w);
 
         Camera {
             center,
@@ -26,11 +50,26 @@ impl Camera {
             viewport,
             samples,
             max_depth,
+            v_fov,
+            lookat,
+            lookfrom,
+            u,
+            v,
+            w,
+            vup,
         }
     }
 
     pub fn default() -> Camera {
-        Camera::new(16.0 / 9.0, 400, 10, 10)
+        Camera::new(
+            16.0 / 9.0,
+            400,
+            10,
+            10,
+            90.0,
+            Point::zero(),
+            Point::new(0.0, 0.0, -1.0),
+        )
     }
 
     #[inline(always)]
@@ -121,24 +160,27 @@ struct Viewport {
 impl Viewport {
     pub fn new(
         aspect_ratio: f64,
-        viewport_height: f64,
+        h: f64,
         image_width: usize,
         focal_length: f64,
         center: Point,
+        u: Vec3,
+        v: Vec3,
+        w: Vec3,
     ) -> Viewport {
         let mut image_height = (image_width as f64 / aspect_ratio) as usize;
         if image_height < 1 {
             image_height = 1;
         }
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
+        let viewport_u = viewport_width * u;
+        let viewport_v = viewport_height * -v;
         let pixel_delta_u = viewport_u / image_width as f64;
         let pixel_delta_v = viewport_v / image_height as f64;
 
         // get the viewport plane position, then move it toi the center
-        let viewport_upper_left =
-            center - Point::new(0.0, 0.0, focal_length) - viewport_u * 0.5 - viewport_v * 0.5;
+        let viewport_upper_left = center - focal_length * w - viewport_u * 0.5 - viewport_v * 0.5;
 
         let pixel_00 = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 

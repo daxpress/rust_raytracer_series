@@ -19,6 +19,14 @@ impl Vec3 {
         Vec3::new(1.0, 1.0, 1.0)
     }
 
+    pub fn up() -> Self {
+        Vec3::new(0.0, 1.0, 0.0)
+    }
+
+    pub fn right() -> Self {
+        Vec3::new(1.0, 0.0, 0.0)
+    }
+
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Vec3 { fields: [x, y, z] }
     }
