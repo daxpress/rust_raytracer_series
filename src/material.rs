@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use crate::color::Color;
 use crate::vec3::Vec3;
 use crate::{hittable::HitResult, ray::Ray};
@@ -101,11 +103,19 @@ impl Material for Dielectric {
         };
 
         let unit_dir = ray.direction().normalized();
-        let refracted  = Vec3::refract(&unit_dir, hit_result.normal(), refraction_ratio);
+        let cos_theta = f64::min(Vec3::dot(&-unit_dir, hit_result.normal()), 1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+        let direction = if refraction_ratio * sin_theta > 1.0 {
+            Vec3::reflect(&unit_dir, hit_result.normal())
+        }
+        else {
+            Vec3::refract(&unit_dir, hit_result.normal(), refraction_ratio)
+        };
 
         Some(ScatterResult {
             attenuation: Color::white(),
-            scattered_ray: Ray::new(*hit_result.location(), refracted)
+            scattered_ray: Ray::new(*hit_result.location(), direction)
         })
     }
 }
