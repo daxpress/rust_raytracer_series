@@ -1,6 +1,5 @@
-use std::cmp::min;
-
 use crate::color::Color;
+use crate::utilities::rand;
 use crate::vec3::Vec3;
 use crate::{hittable::HitResult, ray::Ray};
 
@@ -92,6 +91,13 @@ impl Dielectric {
     pub fn new(refraction_index: f64) -> Self {
         Dielectric { refraction_index }
     }
+
+    fn reflectance(&self, cos: f64) -> f64 {
+        // Schlick's approximation for reflectance
+        let mut r0 = (1.0 - self.refraction_index) / (1.0 + self.refraction_index);
+        r0 = r0 * r0;
+        r0 + (1.0 - r0) * f64::powi(1.0-cos, 5)
+    }
 }
 
 impl Material for Dielectric {
@@ -105,17 +111,18 @@ impl Material for Dielectric {
         let unit_dir = ray.direction().normalized();
         let cos_theta = f64::min(Vec3::dot(&-unit_dir, hit_result.normal()), 1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
+        let reflectance_condition = self.reflectance(cos_theta) > rand();
 
-        let direction = if refraction_ratio * sin_theta > 1.0 {
+        let direction = if cannot_refract || reflectance_condition {
             Vec3::reflect(&unit_dir, hit_result.normal())
-        }
-        else {
+        } else {
             Vec3::refract(&unit_dir, hit_result.normal(), refraction_ratio)
         };
 
         Some(ScatterResult {
             attenuation: Color::white(),
-            scattered_ray: Ray::new(*hit_result.location(), direction)
+            scattered_ray: Ray::new(*hit_result.location(), direction),
         })
     }
 }

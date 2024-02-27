@@ -16,22 +16,27 @@ fn main() {
     world.add(Rc::new(Sphere::new(
         Point::new(0.0, -100.5, -1.0),
         100.0,
-        ground_mat,
+        ground_mat.clone(),
     )));
     world.add(Rc::new(Sphere::new(
         Point::new(0.0, 0.0, -1.0),
         0.5,
-        center_mat,
+        center_mat.clone(),
     )));
     world.add(Rc::new(Sphere::new(
         Point::new(-1.0, 0.0, -1.0),
         0.5,
-        right_mat,
+        right_mat.clone(),
+    )));
+    world.add(Rc::new(Sphere::new(
+        Point::new(-1.0, 0.0, -1.0),
+        -0.4,
+        right_mat.clone(),
     )));
     world.add(Rc::new(Sphere::new(
         Point::new(1.0, 0.0, -1.0),
         0.5,
-        left_mat,
+        left_mat.clone(),
     )));
 
     raytracer.render_image(&world);
