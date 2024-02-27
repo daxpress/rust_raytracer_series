@@ -1,6 +1,5 @@
 use raytracing_in_one_weekend::{
-    color::Color, hittable_list::HittableList, material::Lambertian, material::Metal,
-    raytracer::Raytracer, sphere::Sphere, Point,
+    color::Color, hittable_list::HittableList, material::{Dielectric, Lambertian, Metal}, raytracer::Raytracer, sphere::Sphere, Point,
 };
 
 use std::rc::Rc;
@@ -10,7 +9,7 @@ fn main() {
     let mut world = HittableList::new();
 
     let ground_mat = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
-    let center_mat = Rc::new(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
+    let center_mat = Rc::new(Dielectric::new(1.5));
     let right_mat = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.3));
     let left_mat = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 1.0));
 

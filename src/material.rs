@@ -72,12 +72,40 @@ impl Material for Metal {
             reflected + self.fuzz * Vec3::rand_unit(),
         );
         if Vec3::dot(&scattered.direction(), hit_result.normal()) < 0.0 {
-            return None
+            return None;
         }
 
         Some(ScatterResult {
             attenuation: self.albedo,
             scattered_ray: scattered,
+        })
+    }
+}
+
+pub struct Dielectric {
+    refraction_index: f64,
+}
+
+impl Dielectric {
+    pub fn new(refraction_index: f64) -> Self {
+        Dielectric { refraction_index }
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, ray: &Ray, hit_result: &HitResult) -> Option<ScatterResult> {
+        let refraction_ratio = if hit_result.front_face() {
+            1.0 / self.refraction_index
+        } else {
+            self.refraction_index
+        };
+
+        let unit_dir = ray.direction().normalized();
+        let refracted  = Vec3::refract(&unit_dir, hit_result.normal(), refraction_ratio);
+
+        Some(ScatterResult {
+            attenuation: Color::white(),
+            scattered_ray: Ray::new(*hit_result.location(), refracted)
         })
     }
 }

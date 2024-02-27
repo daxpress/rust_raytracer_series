@@ -136,6 +136,12 @@ impl Vec3 {
         *v - 2.0 * Vec3::dot(v, normal) * *normal
     }
 
+    pub fn refract(uv: &Vec3, normal: &Vec3, refraction_index: f64) -> Vec3 {
+        let cos_theta = f64::min(Vec3::dot(&(-*uv), normal), 1.0);
+        let r_out_perp = refraction_index * (*uv + *normal * cos_theta);
+        let r_out_parallel = - (1.0 - r_out_perp.len_squared()).abs().sqrt() * *normal;
+        r_out_perp + r_out_parallel
+    }
 }
 
 impl Neg for Vec3 {
