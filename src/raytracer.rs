@@ -13,19 +13,29 @@ pub struct Raytracer {
 }
 
 impl Raytracer {
-    pub fn new() -> Self {
+    pub fn new(
+        aspect_ratio: f64,
+        image_width: usize,
+        samples: u32,
+        max_depth: u32,
+        v_fov: f64,
+        lookfrom: Point,
+        lookat: Point,
+        focus_dist: f64,
+        defocus_angle: f64,
+    ) -> Self {
         Raytracer {
             data: Vec::new(),
             camera: Camera::new(
-                16.0 / 9.0,
-                400,
-                100,
-                50,
-                20.0,
-                Point::new(-2.0, 2.0, 1.0),
-                Point::new(0.0, 0.0, -1.0),
-                3.4,
-                10.0,
+                aspect_ratio,
+                image_width,
+                samples,
+                max_depth,
+                v_fov,
+                lookfrom,
+                lookat,
+                focus_dist,
+                defocus_angle,
             ),
             //camera: Camera::default(),
             components: 3,

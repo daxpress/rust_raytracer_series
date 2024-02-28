@@ -7,7 +7,7 @@ pub mod material;
 mod ray;
 pub mod raytracer;
 pub mod sphere;
-mod utilities;
+pub mod utilities;
 mod vec3;
 
 pub use vec3::Vec3 as Point;
