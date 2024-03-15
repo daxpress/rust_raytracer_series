@@ -7,6 +7,8 @@ use super::ray::Ray;
 use super::vec3::Vec3;
 use super::Point;
 
+use rayon::prelude::*;
+
 #[derive(Debug)]
 pub struct Camera {
     center: Point,
@@ -68,7 +70,7 @@ impl Camera {
             focus_dist,
             defocus_angle,
             defocus_disk_u,
-            defocus_disk_v
+            defocus_disk_v,
         }
     }
 
@@ -82,7 +84,7 @@ impl Camera {
             Point::zero(),
             Point::new(0.0, 0.0, -1.0),
             10.0,
-            0.0
+            0.0,
         )
     }
 
@@ -106,19 +108,45 @@ impl Camera {
             println!("\rScanlines remaining: {} ", self.height() - j);
 
             for i in 0..self.width() {
-                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                (0..self.samples).for_each(|iter| {
-                    let ray = self.get_ray(i, j);
-                    pixel_color += ray.color(world, self.max_depth);
-                });
-                self.write_pixel(&pixel_color, self.samples, image_data);
+                let pixel_color = (0..self.samples)
+                    .map(|_| {
+                        let ray = self.get_ray(i, j);
+                        ray.color(world, self.max_depth)
+                    })
+                    .reduce(|acc, color| (acc + color))
+                    .unwrap_or(Vec3::black());
+                self.write_pixel(&pixel_color, self.samples, image_data, (i, j));
             }
         }
 
         println!("\rDone.");
     }
 
-    fn write_pixel(&self, color: &Color, samples: u32, image_data: &mut Vec<u8>) {
+    pub fn render_parallel(&self, world: &(dyn Hittable + Sync + Send), image_data: &mut Vec<u8>) {
+        for j in 0..self.height() {
+            println!("\rScanlines remaining: {} ", self.height() - j);
+            for i in 0..self.width() {
+                let pixel_color = (0..self.samples)
+                    .into_par_iter()
+                    .map(|_| {
+                        let ray = self.get_ray(i, j);
+                        ray.color(world, self.max_depth)
+                    })
+                    .reduce(|| (Vec3::zero()), |a, b| (a + b));
+                self.write_pixel(&pixel_color, self.samples, image_data, (i, j));
+            }
+        }
+
+        println!("\rDone.");
+    }
+
+    fn write_pixel(
+        &self,
+        color: &Color,
+        samples: u32,
+        image_data: &mut Vec<u8>,
+        uv: (usize, usize),
+    ) {
         let scale = 1.0 / samples as f64;
 
         let intesity: Interval = Interval::new(0.0, 1.0);
@@ -133,9 +161,11 @@ impl Camera {
         let g = 255f64 * intesity.clamp(*color.g());
         let b = 255f64 * intesity.clamp(*color.b());
 
-        image_data.push(r as u8);
-        image_data.push(g as u8);
-        image_data.push(b as u8);
+        let index = uv.1 * (self.width() * 3) + uv.0 * 3;
+
+        image_data[index + 0] = r as u8;
+        image_data[index + 1] = g as u8;
+        image_data[index + 2] = b as u8;
     }
 
     fn get_ray(&self, i: usize, j: usize) -> Ray {
@@ -146,8 +176,7 @@ impl Camera {
 
         let ray_origin = if self.defocus_angle <= 0.0 {
             self.center
-        }
-        else {
+        } else {
             self.defocus_disk_sample()
         };
         let ray_direction = sample - ray_origin;

@@ -14,7 +14,7 @@ fn main() {
     let mut raytracer = Raytracer::new(
         16.0 / 9.0,
         1200,
-        500,
+        1,
         50,
         20.0,
         Point::new(13.0, 2.0, 3.0),
