@@ -50,7 +50,14 @@ impl Raytracer {
         }
     }
 
-    pub fn render_image(&mut self, world: &HittableList) {
+    pub fn render(&mut self, world: &HittableList, options: RaytracerOptions) {
+        match options.execution_method() {
+            ExecutionMethod::Single => self.render_image(world),
+            ExecutionMethod::Parallel => self.render_image_parallel(world)
+        }
+    }
+
+    fn render_image(&mut self, world: &HittableList) {
         let start = SystemTime::now();
         self.camera.render(world, &mut self.data);
         let end = start.elapsed().unwrap();
@@ -58,7 +65,7 @@ impl Raytracer {
         print_duration(end);
     }
 
-    pub fn render_image_parallel(&mut self, world: &HittableList) {
+    fn render_image_parallel(&mut self, world: &HittableList) {
         let start = SystemTime::now();
         self.camera.render_parallel(world, &mut self.data);
         let end = start.elapsed().unwrap();
@@ -88,5 +95,25 @@ impl Display for Raytracer {
             self.camera.height(),
             self.components
         )
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum ExecutionMethod {
+    Single,
+    Parallel
+}
+
+pub struct RaytracerOptions {
+    execution_method: ExecutionMethod,
+}
+
+impl RaytracerOptions {
+    pub fn new(execution_method: ExecutionMethod) -> Self {
+        RaytracerOptions { execution_method }
+    }
+
+    pub fn execution_method(&self) -> ExecutionMethod {
+        self.execution_method
     }
 }

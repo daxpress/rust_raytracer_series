@@ -2,15 +2,18 @@ use raytracing_series::{
     color::Color,
     hittable_list::HittableList,
     material::{Dielectric, Lambertian, Material, Metal},
-    raytracer::Raytracer,
+    raytracer::{ExecutionMethod, Raytracer, RaytracerOptions},
     sphere::Sphere,
     utilities::{rand, rand_range},
     Point,
 };
 
-use std::sync::Arc;
+use std::{env, sync::Arc};
 
 fn main() {
+
+    let options = parse_arguments(env::args().collect());
+
     let mut raytracer = Raytracer::new(
         16.0 / 9.0,
         1200,
@@ -71,7 +74,18 @@ fn main() {
     let mat3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
     world.add(Arc::new(Sphere::new(Point::new(4.0, 1.0, 0.0), 1.0, mat3)));
 
-    // raytracer.render_image(&world);
-    raytracer.render_image_parallel(&world);
+
+    raytracer.render(&world, options);
     raytracer.save_image("test.png");
+}
+
+fn parse_arguments(args: Vec<String>) -> RaytracerOptions {
+    if args.len() <= 1 {
+        return RaytracerOptions::new(ExecutionMethod::Single);
+    }
+
+    match args[1].as_str() {
+        "parallel" => RaytracerOptions::new(ExecutionMethod::Parallel),
+        _ => RaytracerOptions::new(ExecutionMethod::Single)
+    }
 }
