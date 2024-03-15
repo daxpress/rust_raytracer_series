@@ -6,6 +6,7 @@ use super::hittable::Hittable;
 use super::ray::Ray;
 use super::vec3::Vec3;
 use super::Point;
+
 #[derive(Debug)]
 pub struct Camera {
     center: Point,
@@ -106,10 +107,10 @@ impl Camera {
 
             for i in 0..self.width() {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                for _ in 0..self.samples {
+                (0..self.samples).for_each(|iter| {
                     let ray = self.get_ray(i, j);
                     pixel_color += ray.color(world, self.max_depth);
-                }
+                });
                 self.write_pixel(&pixel_color, self.samples, image_data);
             }
         }

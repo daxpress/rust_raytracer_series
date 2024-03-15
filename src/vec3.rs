@@ -94,13 +94,11 @@ impl Vec3 {
 
     #[inline(always)]
     pub fn rand() -> Vec3 {
-        use super::utilities::rand;
         Vec3::new(rand(), rand(), rand())
     }
 
     #[inline(always)]
     pub fn rand_range(min: f64, max: f64) -> Vec3 {
-        use super::utilities::rand_range;
         Vec3::new(
             rand_range(min, max),
             rand_range(min, max),

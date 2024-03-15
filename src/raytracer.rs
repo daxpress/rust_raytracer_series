@@ -24,21 +24,25 @@ impl Raytracer {
         focus_dist: f64,
         defocus_angle: f64,
     ) -> Self {
+        let camera = Camera::new(
+            aspect_ratio,
+            image_width,
+            samples,
+            max_depth,
+            v_fov,
+            lookfrom,
+            lookat,
+            focus_dist,
+            defocus_angle,
+        );
+        let components = 3;
+        let data = vec![0; camera.width() * camera.height() * components];
+
         Raytracer {
-            data: Vec::new(),
-            camera: Camera::new(
-                aspect_ratio,
-                image_width,
-                samples,
-                max_depth,
-                v_fov,
-                lookfrom,
-                lookat,
-                focus_dist,
-                defocus_angle,
-            ),
+            data,
+            camera,
             //camera: Camera::default(),
-            components: 3,
+            components: components as i32,
         }
     }
 
