@@ -17,7 +17,7 @@ Currently the code covers the [Ray Tracing in one week](https://raytracing.githu
 
 ### Multithreading
 
-* The app runs in single core mode by default, if you want to utilize all of your cores run the executable wit the ```parallel``` argument.
+* The app runs in single core mode by default, if you want to leverage all of your cores run the executable wit the ```parallel``` argument.
  using cargo: ```cargo run -- parallel```
 
 ## Render
