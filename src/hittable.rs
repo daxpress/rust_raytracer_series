@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use super::material::Material;
 use super::ray::Ray;
@@ -13,13 +13,13 @@ pub trait Hittable {
 pub struct HitResult {
     location: Point,
     normal: Vec3,
-    material: Rc<dyn Material>,
+    material: Arc<dyn Material>,
     t: f64,
     front_face: bool,
 }
 
 impl HitResult {
-    pub fn new(ray: &Ray, location: Point, normal: Vec3, material: Rc<dyn Material>, t: f64) -> Self {
+    pub fn new(ray: &Ray, location: Point, normal: Vec3, material: Arc<dyn Material>, t: f64) -> Self {
         let front_face = Vec3::dot(&ray.direction(), &normal) < 0.0;
         let mut normal = normal;
         if !front_face {
@@ -55,7 +55,7 @@ impl HitResult {
     }
 
     #[inline(always)]
-    pub fn material(&self) -> Rc<dyn Material> {
-        Rc::clone(&self.material)
+    pub fn material(&self) -> Arc<dyn Material> {
+        Arc::clone(&self.material)
     }
 }

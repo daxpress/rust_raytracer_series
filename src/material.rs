@@ -41,7 +41,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray: &Ray, hit_result: &HitResult) -> Option<ScatterResult> {
+    fn scatter(&self, _ray: &Ray, hit_result: &HitResult) -> Option<ScatterResult> {
         let mut scatter_dir = *hit_result.normal() + Vec3::rand_unit();
         if scatter_dir.near_zero() {
             scatter_dir = *hit_result.normal();

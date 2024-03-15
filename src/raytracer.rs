@@ -1,9 +1,13 @@
-use crate::Point;
+use crate::{hittable_list::HittableList, Point};
 
 use super::camera::Camera;
-use super::hittable::Hittable;
+use crate::utilities::print_duration;
 use stb::image_write::stbi_write_png;
-use std::{ffi::CString, fmt::Display};
+use std::{
+    ffi::CString,
+    fmt::Display,
+    time::SystemTime,
+};
 
 #[derive(Debug)]
 pub struct Raytracer {
@@ -46,8 +50,20 @@ impl Raytracer {
         }
     }
 
-    pub fn render_image(&mut self, world: &dyn Hittable) {
-        self.camera.render(world, &mut self.data)
+    pub fn render_image(&mut self, world: &HittableList) {
+        let start = SystemTime::now();
+        self.camera.render(world, &mut self.data);
+        let end = start.elapsed().unwrap();
+        print!("Rendering duration: ");
+        print_duration(end);
+    }
+
+    pub fn render_image_parallel(&mut self, world: &HittableList) {
+        let start = SystemTime::now();
+        self.camera.render_parallel(world, &mut self.data);
+        let end = start.elapsed().unwrap();
+        print!("Rendering duration: ");
+        print_duration(end);
     }
 
     pub fn save_image(&self, filename: &str) {

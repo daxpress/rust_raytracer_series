@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use super::hittable::{HitResult, Hittable};
 use super::interval::Interval;
@@ -10,11 +10,11 @@ use super::Point;
 pub struct Sphere {
     center: Point,
     radius: f64,
-    material: Rc<dyn Material>,
+    material: Arc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point, radius: f64, material: Rc<dyn Material>) -> Self {
+    pub fn new(center: Point, radius: f64, material: Arc<dyn Material>) -> Self {
         Sphere {
             center,
             radius,
@@ -51,7 +51,7 @@ impl Hittable for Sphere {
             ray,
             location,
             normal,
-            Rc::clone(&self.material),
+            Arc::clone(&self.material),
             t,
         ));
     }
