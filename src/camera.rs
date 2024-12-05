@@ -1,3 +1,4 @@
+use std::sync::Mutex;
 use crate::interval::Interval;
 use crate::utilities::deg_to_rad;
 
@@ -125,18 +126,17 @@ impl Camera {
     pub fn render_parallel(&self, world: &(dyn Hittable + Sync + Send), image_data: &mut Vec<u8>) {
         for j in 0..self.height() {
             println!("\rScanlines remaining: {} ", self.height() - j);
-            for i in 0..self.width() {
+            let mutex = Mutex::new(&mut *image_data);
+            (0 .. self.width()).into_par_iter().for_each(|i| {
                 let pixel_color = (0..self.samples)
-                    .into_par_iter()
+                    .into_iter()
                     .map(|_| {
                         let ray = self.get_ray(i, j);
                         ray.color(world, self.max_depth)
-                    })
-                    .reduce(|| (Vec3::zero()), |a, b| (a + b));
-                self.write_pixel(&pixel_color, self.samples, image_data, (i, j));
-            }
+                    }).reduce(|acc, color| (acc + color)).unwrap_or(Color::black());
+                self.write_pixel_mutex(&pixel_color, self.samples, &mutex, (i, j));
+            });
         }
-
         println!("\rDone.");
     }
 
@@ -168,6 +168,35 @@ impl Camera {
         image_data[index + 2] = b as u8;
     }
 
+    fn write_pixel_mutex(
+        &self,
+        color: &Color,
+        samples: u32,
+        image_data: &Mutex<&mut Vec<u8>>,
+        uv: (usize, usize),
+    ) {
+        let scale = 1.0 / samples as f64;
+
+        let intesity: Interval = Interval::new(0.0, 1.0);
+
+        let color = Color::linear_to_gamma(&Color::new(
+            *color.r() * scale,
+            *color.g() * scale,
+            *color.b() * scale,
+        ));
+
+        let r = 255f64 * intesity.clamp(*color.r());
+        let g = 255f64 * intesity.clamp(*color.g());
+        let b = 255f64 * intesity.clamp(*color.b());
+
+        let index = uv.1 * (self.width() * 3) + uv.0 * 3;
+
+        let mut image_data = image_data.lock().unwrap();
+
+        image_data[index + 0] = r as u8;
+        image_data[index + 1] = g as u8;
+        image_data[index + 2] = b as u8;
+    }
     fn get_ray(&self, i: usize, j: usize) -> Ray {
         let pixel_center = self.viewport.pixel_00
             + (i as f64 * self.viewport.pixel_delta_u)
