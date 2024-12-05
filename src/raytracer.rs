@@ -2,12 +2,8 @@ use crate::{hittable_list::HittableList, Point};
 
 use super::camera::Camera;
 use crate::utilities::print_duration;
-use stb::image_write::stbi_write_png;
-use std::{
-    ffi::CString,
-    fmt::Display,
-    time::SystemTime,
-};
+
+use std::{fmt::Display, time::SystemTime};
 
 #[derive(Debug)]
 pub struct Raytracer {
@@ -53,7 +49,7 @@ impl Raytracer {
     pub fn render(&mut self, world: &HittableList, options: RaytracerOptions) {
         match options.execution_method() {
             ExecutionMethod::Single => self.render_image(world),
-            ExecutionMethod::Parallel => self.render_image_parallel(world)
+            ExecutionMethod::Parallel => self.render_image_parallel(world),
         }
     }
 
@@ -74,15 +70,14 @@ impl Raytracer {
     }
 
     pub fn save_image(&self, filename: &str) {
-        let cstr = CString::new(filename).unwrap();
-        stbi_write_png(
-            &cstr,
-            self.camera.width() as i32,
-            self.camera.height() as i32,
-            self.components,
+        image::save_buffer(
+            filename,
             &self.data,
-            3 * self.camera.width() as i32,
-        );
+            self.camera.width() as u32,
+            self.camera.height() as u32,
+            image::ColorType::Rgb8,
+        )
+        .unwrap();
     }
 }
 
@@ -101,7 +96,7 @@ impl Display for Raytracer {
 #[derive(Clone, Copy)]
 pub enum ExecutionMethod {
     Single,
-    Parallel
+    Parallel,
 }
 
 pub struct RaytracerOptions {

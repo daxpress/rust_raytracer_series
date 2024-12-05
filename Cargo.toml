@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 
-stb = "0.3.2"
-rand = "0.8.5"
 rayon = "1.9.0"
+rand = "0.8.5"
+image = "0.25.5"

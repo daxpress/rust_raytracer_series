@@ -10,7 +10,7 @@ use std::time::Duration;
 use rand::*;
 
 pub fn rand() -> f64 {
-    thread_rng().gen()
+    random()
 }
 
 pub fn rand_range(min: f64, max: f64) -> f64 {
